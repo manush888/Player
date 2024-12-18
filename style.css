@@ -293,3 +293,11 @@ body {
     transform: rotate(360deg);
   }
 }
+
+.version {
+  position: absolute;
+  bottom: 15px;
+  right: 15px;
+  font-family: "Alumni Sans Pinstripe";
+  color: #ffffff;
+}
