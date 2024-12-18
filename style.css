@@ -47,13 +47,16 @@ body {
   position: absolute;
   top: 10px;
   left: 10px;
-  width: 260px;
-  height: 260px;
+  width: 240px;
+  height: 240px;
   border-radius: 50%;
-  background: conic-gradient(#1db954 0%, #555 0%);
+  border: 10px solid transparent; /* Border to visualize the progress */
+  border-image: conic-gradient(#1db954 0%, #555 0%);
+  border-image-slice: 1; 
   z-index: 0;
   margin: -20px;
 }
+
 
 .track-info {
   margin-bottom: 20px;
@@ -257,5 +260,36 @@ body {
     text-align: center;
     position: relative;
     overflow-y: scroll;
+  }
+}
+
+.circular-container {
+  position: relative;
+  top: 5px;
+  left: 5px;
+  width: 270px;
+  height: 270px;
+}
+
+.circular-progress {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  border: 0 solid #555; /* This is the "background" of the border */
+  box-sizing: border-box;
+  mask: radial-gradient(circle, transparent 60%, black 60%);
+  -webkit-mask: radial-gradient(circle, transparent 68%, black 69%);
+}
+
+
+@keyframes rotate {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
   }
 }

@@ -4,7 +4,6 @@ const playPauseButton = document.getElementById('playPauseButton');
 const trackTitle = document.getElementById('trackTitle');
 const trackArtist = document.getElementById('trackArtist');
 const albumArt = document.getElementById('albumArt');
-const progressCircle = document.getElementById('progressCircle');
 const progressText = document.getElementById('progressText');
 const prevButton = document.getElementById('prevButton');
 const nextButton = document.getElementById('nextButton');
@@ -124,14 +123,14 @@ prevButton.addEventListener('click', () => {
 });
 
 // Update Progress Circle
+const progressCircle = document.querySelector('.circular-progress');
+
 audio.addEventListener('timeupdate', () => {
   const progress = (audio.currentTime / audio.duration) * 100;
-  progressCircle.style.background = `conic-gradient(#009c37 ${progress}%, #555 ${progress}%)`;
-
-  const currentTime = formatTime(audio.currentTime);
-  const duration = formatTime(audio.duration);
-  progressText.textContent = `${currentTime} / ${duration}`;
+  const degree = (progress / 100) * 360; // Convert progress to degrees
+  progressCircle.style.background = `conic-gradient(#1db954 ${degree}deg, #555 ${degree}deg)`;
 });
+
 
 function formatTime(time) {
   if (isNaN(time)) return '00:00';
@@ -142,6 +141,16 @@ function formatTime(time) {
 
 // Play/Pause Button
 playPauseButton.addEventListener('click', () => {
+  if (audio.paused) {
+    audio.play();
+    playPauseButton.classList.add('pause');
+  } else {
+    audio.pause();
+    playPauseButton.classList.remove('pause');
+  }
+});
+
+albumArt.addEventListener('click', () => {
   if (audio.paused) {
     audio.play();
     playPauseButton.classList.add('pause');
