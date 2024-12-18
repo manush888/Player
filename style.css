@@ -45,10 +45,10 @@ body {
 
 .circular-progress {
   position: absolute;
-  top: 15px;
-  left: 15px;
-  width: 250px;
-  height: 250px;
+  top: 10px;
+  left: 10px;
+  width: 260px;
+  height: 260px;
   border-radius: 50%;
   background: conic-gradient(#1db954 0%, #555 0%);
   z-index: 0;

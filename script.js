@@ -144,17 +144,11 @@ function formatTime(time) {
 playPauseButton.addEventListener('click', () => {
   if (audio.paused) {
     audio.play();
+    playPauseButton.classList.add('pause');
   } else {
     audio.pause();
+    playPauseButton.classList.remove('pause');
   }
-});
-
-audio.addEventListener('pause', () => {
-  playPauseButton.classList.remove('pause');
-});
-
-audio.addEventListener('play', () => {
-  playPauseButton.classList.add('pause');
 });
 
 // Track End Event
@@ -164,3 +158,51 @@ audio.addEventListener('ended', () => {
   audio.play();
   updatePlaylist();
 });
+
+// Function to update the progress
+function updateProgress(e) {
+  const rect = progressCircle.getBoundingClientRect();  // Get the circle's position
+  const centerX = rect.left + rect.width / 2;
+  const centerY = rect.top + rect.height / 2;
+  const offsetX = e.clientX - centerX;
+  const offsetY = e.clientY - centerY;
+
+  // Calculate the angle of the click relative to the center
+  let angle = Math.atan2(offsetY, offsetX);
+
+  // Normalize the angle to start from the top (12 o'clock position)
+  angle += Math.PI / 2;  // This rotates the angle to start from top (12 o'clock)
+
+  // Ensure the angle is between 0 and 2 * Math.PI
+  if (angle < 0) {
+    angle += 2 * Math.PI;
+  }
+
+  // Map the angle to a range of 0 to 1
+  let progress = angle / (2 * Math.PI);
+
+  // Ensure the progress is within the range [0, 1]
+  progress = Math.min(1, Math.max(0, progress));
+
+  // Update the audio current time based on the calculated progress
+  audio.currentTime = progress * audio.duration;
+
+  // Update the progress circle to reflect the change
+  updateProgressCircle();
+}
+
+// Function to update the progress circle based on current audio time
+function updateProgressCircle() {
+  const progress = (audio.currentTime / audio.duration) * 100;
+  progressCircle.style.background = `conic-gradient(#009c37 ${progress}%, #555 ${progress}%)`;
+
+  const currentTime = formatTime(audio.currentTime);
+  const duration = formatTime(audio.duration);
+  progressText.textContent = `${currentTime} / ${duration}`;
+}
+
+// Add event listener to the circular progress to allow manual seek
+progressCircle.addEventListener('click', updateProgress);
+
+// Keep the time updated while the song plays
+audio.addEventListener('timeupdate', updateProgressCircle);
