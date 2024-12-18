@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Music player by Manu</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+  <div class="player-container" id="playerContainer">
+    <div class="wrapper">
+      <div class="album-art-container">
+        <div class="circular-progress" id="progressCircle"></div>
+        <img src="" alt="Album Art" class="album-art" id="albumArt">
+      </div>
+      <div class="track-info">
+        <div class="track-title" id="trackTitle">No Track</div>
+        <div class="track-artist" id="trackArtist">Unknown Artist</div>
+      </div>
+      <div class="nav">
+        <button class="navigation-button" id="prevButton"></button>
+        <button class="control-button play-button" id="playPauseButton"></button>
+        <button class="navigation-button" id="nextButton"></button>
+      </div>
+      <div class="progress-text" id="progressText">00:00 / 00:00</div>
+      <div class="acc">
+        <button class="control-button" id="openButton" style="margin-top: 20px;"></button>
+        <input type="file" id="fileInput" class="hidden-input" accept="audio/*" multiple>
+        <button class="control-button" id="showPlaylistButton" style="margin-top: 20px;"></button>
+      </div>
+    </div>
+  </div>
+
+  <div class="playlist-modal" id="playlistModal">
+    <button class="close-playlist-btn" id="closePlaylistButton"></button>
+    <div class="playlist-container" id="playlistContainer">
+      <div class="playlist-item">No Tracks</div>
+    </div>
+  </div>
+
+  <script src="jsmediatags.min.js"></script>
+  <script src="color-thief.umd.js"></script>
+  <script src="script.js"></script>
+</body>
+
+</html>
