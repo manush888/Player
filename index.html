@@ -1,60 +1,64 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Music player by Manu</title>
-  <link rel="stylesheet" href="style.css">
-  <link rel="shortcut icon" href="./assets/MA.png" type="image/x-icon">
-  <style>
-    @import url('https://fonts.googleapis.com/css2?family=Playwrite+NL+Guides&display=swap');
-    @import url('https://fonts.googleapis.com/css2?family=Alumni+Sans+Pinstripe:ital@0;1&display=swap');
-    @import url('https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap');
-    @import url('https://fonts.googleapis.com/css2?family=Delicious+Handrawn&display=swap');
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title id="htmltitle">Music player by Manu</title>
+    <link rel="stylesheet" href="./styles.css">
+    <link rel="shortcut icon" href="./assets/MA.png" type="image/x-icon">
+    <script src="./hammer.min.js"></script>
 </head>
-
 <body>
-  <div class="player-container" id="playerContainer">
-    <div class="wrapper">
-      <div class="album-art-container">
-        <div class="circular-container">
-          <div class="circular-progress"></div>
+    <div class="player-container" id="playerContainer" style="z-index: 0;">
+        <div class="wrapper">
+
+            <button class="file-input-btn" id="openFiles"></button>
+            <button class="play-list-btn" id="showList"></button>
+            
+            <div class="album-art-container">
+                <div class="circular-container">
+                    <div class="circular-progress anim"></div>
+                </div>
+                <div class="album-button">
+                    <img src="./assets/open-cover.png" alt=" " class="album-art" id="albumArt">
+                </div>
+            </div>
+
+            <div class="progress-text" id="progressText">~ 00:00 / 00:00 ~</div>
+
+            <div class="track-info">
+                <div class="track-title" id="trackTitle">No Track</div>
+                <div class="track-artist" id="trackArtist">Unknown Artist</div>
+            </div>
+
+            <div class="nav">
+                <button class="navigation-button" id="prevButton"></button>
+                <button class="play-pause-button" id="playPauseButton"></button>
+                <button class="navigation-button" id="nextButton"></button>
+            </div>
+
+            <input type="file" id="fileInput" accept="audio/*" multiple hidden>
+
         </div>
-        
-        <img src="" alt=" " class="album-art" id="albumArt">
-      </div>
-      <div class="track-info">
-        <div class="track-title" id="trackTitle">No Track</div>
-        <div class="track-artist" id="trackArtist">Unknown Artist</div>
-      </div>
-      <div class="nav">
-        <button class="navigation-button" id="prevButton"></button>
-        <button class="control-button play-button" id="playPauseButton"></button>
-        <button class="navigation-button" id="nextButton"></button>
-      </div>
-      <div class="progress-text" id="progressText">00:00 / 00:00</div>
-      <div class="acc">
-        <button class="control-button" id="openButton" style="margin-top: 20px;"></button>
-        <input type="file" id="fileInput" class="hidden-input" accept="audio/*" multiple>
-        <button class="control-button" id="showPlaylistButton" style="margin-top: 20px;"></button>
-      </div>
     </div>
-  </div>
 
-  <div class="playlist-modal" id="playlistModal">
-    <button class="close-playlist-btn" id="closePlaylistButton"></button>
-    <div class="playlist-container" id="playlistContainer">
-      <div class="playlist-item">No Tracks</div>
-    </div>
-  </div>
+    <div class="playlist-holder" id="playlistHolder">
 
-  <script src="jsmediatags.min.js"></script>
-  <script src="color-thief.umd.js"></script>
-  <script src="script.js"></script>
+        <div class="playlist-header">
+            <div class="playlist-title">Playlist</div>
+            <button class="close-playlist-btn" id="closeList"></button>
+        </div>
 
-  <p class="version"> V.12182024</p>
+        <div class="playlist-container" id="playlistContainer">
+            <div class="playlist-item">No Tracks</div>
+        </div>
+
+    </div>    
+
+    <p class="version"> V.0125.1</p>
+    <script src="./script.js"></script>
+    <script src="./jsmediatags.min.js"></script>
+    <script src="./color-thief.umd.js"></script>
+    
 </body>
-
 </html>

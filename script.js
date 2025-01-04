@@ -1,4 +1,8 @@
-const openButton = document.getElementById('openButton');
+const playerContainer = document.getElementById('playerContainer');
+const playlistHolder = document.getElementById('playlistHolder');
+const listshowBtn = document.getElementById('showList');
+const listcloseBtn = document.getElementById('closeList');
+const openButton = document.getElementById('openFiles')
 const fileInput = document.getElementById('fileInput');
 const playPauseButton = document.getElementById('playPauseButton');
 const trackTitle = document.getElementById('trackTitle');
@@ -7,211 +11,306 @@ const albumArt = document.getElementById('albumArt');
 const progressText = document.getElementById('progressText');
 const prevButton = document.getElementById('prevButton');
 const nextButton = document.getElementById('nextButton');
-const playlistModal = document.getElementById('playlistModal');
+const playlistModal = document.getElementById('playlistHolder');
 const playlistContainer = document.getElementById('playlistContainer');
-const showPlaylistButton = document.getElementById('showPlaylistButton');
-const closePlaylistButton = document.getElementById('closePlaylistButton');
-const playerContainer = document.getElementById('playerContainer');
+const progressCircle = document.querySelector('.circular-progress');
+let hammer = new Hammer(trackTitle);
+navigator.mediaSession.setActionHandler('play', playAudio);
+navigator.mediaSession.setActionHandler('pause', pauseAudio);
+navigator.mediaSession.setActionHandler('previoustrack', prev);
+navigator.mediaSession.setActionHandler('nexttrack', next);
+
+
+hammer.on("swiperight", function () {
+    next();
+});
+
+hammer.on("swipeleft", function () {
+    prev();
+});
+
+
+let isPlaylistVisible = true;
 
 const audio = new Audio();
 let isPlaying = false;
 let currentTrackIndex = 0;
 let trackList = [];
 
-// File Input
 openButton.addEventListener('click', () => fileInput.click());
 
+
 fileInput.addEventListener('change', (event) => {
-  const files = event.target.files;
-  if (files.length > 0) {
-    trackList = Array.from(files);
-    currentTrackIndex = 0;
-    loadTrack(currentTrackIndex);
-    updatePlaylist();
-  }
+    const files = event.target.files;
+    if (files.length > 0) {
+        trackList = Array.from(files);
+        currentTrackIndex = 0;
+        loadTrack(currentTrackIndex);
+        updatePlaylist();
+    }
 });
 
 function loadTrack(index) {
-  const file = trackList[index];
-  if (file) {
-    audio.src = URL.createObjectURL(file);
+    const file = trackList[index];
+    if (file) {
+        audio.src = URL.createObjectURL(file);
 
-    jsmediatags.read(file, {
-      onSuccess: (tag) => {
-        const { title, artist, picture } = tag.tags;
-        trackTitle.textContent = title || file.name;
-        trackArtist.textContent = artist || 'Unknown Artist';
+        jsmediatags.read(file, {
+            onSuccess: (tag) => {
+                const { title, artist, picture } = tag.tags;
+                trackTitle.textContent = title || file.name;
+                trackArtist.textContent = artist || 'Unknown Artist';
 
-        const base64String = picture
-          ? `data:${picture.format};base64,${btoa(new Uint8Array(picture.data).reduce((data, byte) => data + String.fromCharCode(byte), ''))}`
-          : 'https://via.placeholder.com/200?text=No+Cover';
+                const base64String = picture
+                    ? `data:${picture.format};base64,${btoa(new Uint8Array(picture.data).reduce((data, byte) => data + String.fromCharCode(byte), ''))}`
+                    : './assets/nocover.png';
           
-        albumArt.src = base64String;
+                albumArt.src = base64String;
 
-        if (picture) {
-          const img = new Image();
-          img.src = base64String;
-          img.onload = () => {
-            const colorThief = new ColorThief();
-            const dominantColor = colorThief.getColor(img);
-            const rgbColor = `rgb(${dominantColor[0]}, ${dominantColor[1]}, ${dominantColor[2]})`;
-            playerContainer.style.background = `linear-gradient(135deg, ${rgbColor}, #1e1e2f)`;
-          };
-        } else {
-          playerContainer.style.background = '#1e1e2f';
-        }
-      },
-      onError: () => {
-        trackTitle.textContent = file.name;
-        trackArtist.textContent = 'Unknown Artist';
-        albumArt.src = 'https://via.placeholder.com/200?text=No+Cover';
-        playerContainer.style.background = '#1e1e2f';
-      }
-    });
-  }
+                // Update Media Session API
+                if ('mediaSession' in navigator) {
+                    navigator.mediaSession.metadata = new MediaMetadata({
+                        title: title || file.name,
+                        artist: artist || 'Unknown Artist',
+                        album: 'Unknown Album',
+                        artwork: [
+                            { src: base64String, sizes: '512x512', type: picture ? picture.format : 'image/png' }
+                        ]
+                    });
+                }
+
+                // Apply background gradient from album art
+                if (picture) {
+                    const img = new Image();
+                    img.src = base64String;
+                    img.onload = () => {
+                        const colorThief = new ColorThief();
+                        const palette = colorThief.getPalette(img, 3);
+                        const color1 = palette[0];
+                        const color2 = palette[1];
+                        const color3 = palette[2];
+                        const rgbColor1 = `rgb(${color1[0]}, ${color1[1]}, ${color1[2]})`;
+                        const rgbColor2 = `rgb(${color2[0]}, ${color2[1]}, ${color2[2]})`;
+                        const rgbColor3 = `rgb(${color3[0]}, ${color3[1]}, ${color3[2]})`;
+                        playerContainer.style.background = `linear-gradient(135deg, ${rgbColor1}, ${rgbColor3}, ${rgbColor2})`;
+                    };
+                } else {
+                    playerContainer.style.background = '#1e1e2f';
+                }
+            },
+            onError: () => {
+                trackTitle.textContent = file.name;
+                trackArtist.textContent = 'Unknown Artist';
+                albumArt.src = './assets/nocover.png';
+                playerContainer.style.background = '#1e1e2f';
+                
+                // Update Media Session API
+                if ('mediaSession' in navigator) {
+                    navigator.mediaSession.metadata = new MediaMetadata({
+                        title: file.name,
+                        artist: 'Unknown Artist',
+                        album: 'Unknown Album',
+                        artwork: [
+                            { src: './assets/nocover.png' }
+                        ]
+                    });
+                }
+            }
+        });
+    }
 }
 
-// Update Playlist
+
 function updatePlaylist() {
-  playlistContainer.innerHTML = '';
-  if (trackList.length === 0) {
-    playlistContainer.innerHTML = '<div class="playlist-item">No Tracks</div>';
-    return;
-  }
+    playlistContainer.innerHTML = '';
+    if (trackList.length === 0) {
+        playlistContainer.innerHTML = '<div class="playlist-item">No Tracks</div>';
+        return;
+    }
 
-  trackList.forEach((file, index) => {
-    const listItem = document.createElement('div');
-    listItem.classList.add('playlist-item');
-    listItem.textContent = file.name;
+    trackList.forEach((file, index) => {
+        const listItem = document.createElement('div');
+        listItem.classList.add('playlist-item');
+        listItem.textContent = file.name;
     
-    if (index === currentTrackIndex) listItem.classList.add('active-track');
+        if (index === currentTrackIndex) listItem.classList.add('active-track');
     
-    listItem.addEventListener('click', () => {
-      currentTrackIndex = index;
-      loadTrack(currentTrackIndex);
-      if (isPlaying) audio.play();
-      updatePlaylist();
+        listItem.addEventListener('click', () => {
+            currentTrackIndex = index;
+            loadTrack(currentTrackIndex);
+            updatePlaylist();
+        });
+
+        playlistContainer.appendChild(listItem);
     });
-
-    playlistContainer.appendChild(listItem);
-  });
 }
 
-// Show Playlist Modal
-showPlaylistButton.addEventListener('click', () => {
-  playlistModal.style.display = 'flex';
-});
+nextButton.addEventListener('click', next);
 
-// Close Playlist Modal
-closePlaylistButton.addEventListener('click', () => {
-  playlistModal.style.display = 'none';
-});
+prevButton.addEventListener('click', prev);
 
-// Next/Previous Track Navigation
-nextButton.addEventListener('click', () => {
-  currentTrackIndex = (currentTrackIndex + 1) % trackList.length;
-  loadTrack(currentTrackIndex);
-  audio.play();
-  updatePlaylist();
-});
+function next() {
+    if (isPlaying) {
+        currentTrackIndex = (currentTrackIndex + 1) % trackList.length;
+        loadTrack(currentTrackIndex);
+        updatePlaylist();
+        playAudio();
+    } else {
+        currentTrackIndex = (currentTrackIndex + 1) % trackList.length;
+        loadTrack(currentTrackIndex);
+        updatePlaylist();
+        zero();
+    }
+}
 
-prevButton.addEventListener('click', () => {
-  currentTrackIndex = (currentTrackIndex - 1 + trackList.length) % trackList.length;
-  loadTrack(currentTrackIndex);
-  audio.play();
-  updatePlaylist();
-});
+function prev() {
+    if (isPlaying) {
+        currentTrackIndex = (currentTrackIndex - 1 + trackList.length) % trackList.length;
+        loadTrack(currentTrackIndex);
+        updatePlaylist();
+        playAudio();
+    } else {
+        currentTrackIndex = (currentTrackIndex - 1 + trackList.length) % trackList.length;
+        loadTrack(currentTrackIndex);
+        updatePlaylist();
+        zero();
+    }
+}
 
 // Update Progress Circle
-const progressCircle = document.querySelector('.circular-progress');
 
 audio.addEventListener('timeupdate', () => {
-  const progress = (audio.currentTime / audio.duration) * 100;
-  const degree = (progress / 100) * 360; // Convert progress to degrees
-  progressCircle.style.background = `conic-gradient(#1db954 ${degree}deg, #555 ${degree}deg)`;
+    const progress = (audio.currentTime / audio.duration) * 100;
+    const degree = (progress / 100) * 360;
+    progressCircle.style.background = `conic-gradient(#1db954 ${degree}deg, #555 ${degree}deg)`;
 });
+
+function zero() {
+    progressCircle.style.background = `conic-gradient(#1db954 360deg, #555 360deg)`;
+}
 
 
 function formatTime(time) {
-  if (isNaN(time)) return '00:00';
-  const minutes = Math.floor(time / 60).toString().padStart(2, '0');
-  const seconds = Math.floor(time % 60).toString().padStart(2, '0');
-  return `${minutes}:${seconds}`;
+    if (isNaN(time)) return '00:00';
+    const minutes = Math.floor(time / 60).toString().padStart(2, '0');
+    const seconds = Math.floor(time % 60).toString().padStart(2, '0');
+    return `${minutes}:${seconds}`;
 }
 
 // Play/Pause Button
 playPauseButton.addEventListener('click', () => {
-  if (audio.paused) {
-    audio.play();
-    playPauseButton.classList.add('pause');
-  } else {
-    audio.pause();
-    playPauseButton.classList.remove('pause');
-  }
+    advancedPlay();
 });
 
 albumArt.addEventListener('click', () => {
-  if (audio.paused) {
-    audio.play();
-    playPauseButton.classList.add('pause');
-  } else {
-    audio.pause();
-    playPauseButton.classList.remove('pause');
-  }
+    advancedPlay();
 });
 
-// Track End Event
-audio.addEventListener('ended', () => {
-  currentTrackIndex = (currentTrackIndex + 1) % trackList.length;
-  loadTrack(currentTrackIndex);
-  audio.play();
-  updatePlaylist();
-});
-
-// Function to update the progress
-function updateProgress(e) {
-  const rect = progressCircle.getBoundingClientRect();  // Get the circle's position
-  const centerX = rect.left + rect.width / 2;
-  const centerY = rect.top + rect.height / 2;
-  const offsetX = e.clientX - centerX;
-  const offsetY = e.clientY - centerY;
-
-  // Calculate the angle of the click relative to the center
-  let angle = Math.atan2(offsetY, offsetX);
-
-  // Normalize the angle to start from the top (12 o'clock position)
-  angle += Math.PI / 2;  // This rotates the angle to start from top (12 o'clock)
-
-  // Ensure the angle is between 0 and 2 * Math.PI
-  if (angle < 0) {
-    angle += 2 * Math.PI;
-  }
-
-  // Map the angle to a range of 0 to 1
-  let progress = angle / (2 * Math.PI);
-
-  // Ensure the progress is within the range [0, 1]
-  progress = Math.min(1, Math.max(0, progress));
-
-  // Update the audio current time based on the calculated progress
-  audio.currentTime = progress * audio.duration;
-
-  // Update the progress circle to reflect the change
-  updateProgressCircle();
+function advancedPlay() {
+    if (audio.paused) {
+        if (trackList.length >0) {
+            playAudio();
+        }
+        else {
+            fileInput.click();
+        }
+    } 
+    else {
+        if (trackList.length >0) {
+            pauseAudio();
+        }        
+        else {
+            fileInput.click();
+        }
+    
+    }
 }
 
-// Function to update the progress circle based on current audio time
+function playAudio() {
+    audio.play();
+    playPauseButton.classList.add('pause');
+    progressCircle.classList.remove('anim');
+    isPlaying = true
+}
+
+function pauseAudio() {
+    audio.pause();
+    playPauseButton.classList.remove('pause');
+    progressCircle.classList.add('anim');
+    isPlaying = false;
+}
+
+audio.addEventListener('ended', () => {
+    currentTrackIndex = (currentTrackIndex + 1) % trackList.length;
+    loadTrack(currentTrackIndex);
+    audio.play();
+    updatePlaylist();
+});
+
+function updateProgress(e) {
+    const rect = progressCircle.getBoundingClientRect();
+    const centerX = rect.left + rect.width / 2;
+    const centerY = rect.top + rect.height / 2;
+    const offsetX = e.clientX - centerX;
+    const offsetY = e.clientY - centerY;
+    let angle = Math.atan2(offsetY, offsetX);
+    angle += Math.PI / 2;
+    if (angle < 0) {
+        angle += 2 * Math.PI;
+    }
+    let progress = angle / (2 * Math.PI);
+    progress = Math.min(1, Math.max(0, progress));
+    audio.currentTime = progress * audio.duration;
+    updateProgressCircle();
+}
+
 function updateProgressCircle() {
   const progress = (audio.currentTime / audio.duration) * 100;
   progressCircle.style.background = `conic-gradient(#009c37 ${progress}%, #555 ${progress}%)`;
 
   const currentTime = formatTime(audio.currentTime);
   const duration = formatTime(audio.duration);
-  progressText.textContent = `${currentTime} / ${duration}`;
+  progressText.textContent = `~ ${currentTime} / ${duration} ~`;
 }
 
-// Add event listener to the circular progress to allow manual seek
 progressCircle.addEventListener('click', updateProgress);
 
-// Keep the time updated while the song plays
 audio.addEventListener('timeupdate', updateProgressCircle);
+
+document.onload = playlistHeight();
+listshowBtn.addEventListener('click',playlistHeight);
+listshowBtn.addEventListener('click',playlistVisible);
+listcloseBtn.addEventListener('click',playlistVisible);
+
+//playlist
+function playlistHeight() {
+
+    const playerHeight = playerContainer.offsetHeight;
+    const playerWidth = playerContainer.offsetWidth;
+    playlistHolder.style.height = playerHeight + 'px';
+    playlistHolder.style.width = playerWidth + 'px';
+
+};
+
+function playlistVisible() {
+
+    if (isPlaylistVisible) {
+        if (trackList.length <= 0) {
+            fileInput.click();            
+        }
+        playlistHolder.style.zIndex = '3';
+        playlistHolder.style.opacity = '1';
+        playlistHolder.style.backdropFilter = 'blur(150px)';
+        isPlaylistVisible = false;
+    } else {
+        playlistHolder.style.backdropFilter = 'blur(15px)';
+        isPlaylistVisible = true;
+        setTimeout(() => {
+            playlistHolder.style.opacity = '0';
+            setTimeout(() => {
+                playlistHolder.style.zIndex = '-1';
+            }, 100);
+        }, 300);
+    }
+
+}

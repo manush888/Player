@@ -1,0 +1,13 @@
+<audio id="myAudio" src="./assets/spotifydown.com - Your Eyes.mp3" controls></audio>
+<button onclick="checkStatus()">Check Status</button>
+
+<script>
+  function checkStatus() {
+    const audio = document.getElementById('myAudio');
+    if (audio.paused) {
+      alert('Audio is paused');
+    } else {
+      alert('Audio is playing');
+    }
+  }
+</script>

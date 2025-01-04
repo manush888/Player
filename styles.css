@@ -1,0 +1,301 @@
+@font-face {
+    font-family: poppins;
+    src: url(./assets/Poppins-Regular.ttf);
+}
+
+@font-face {
+    font-family: alumni;
+    src: url(./assets/AlumniSansPinstripe-Regular.ttf);
+}
+
+@font-face {
+    font-family: delhd;
+    src: url(./assets/DeliciousHandrawn-Regular.ttf);
+}
+
+*{
+    user-select: none;
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    background-color: #121212;
+    font-family: poppins;
+    color: #ffffff;
+}
+
+.player-container {
+    background: #1e1e2f;
+    border-radius: 25px;
+    width: 350px;
+    text-align: center;
+    box-shadow: 0 10px 25px #0000008f;
+    transition: height 0.5s ease-in-out;
+}
+  
+.wrapper {
+    padding: 20px ;
+    backdrop-filter: blur(15px);
+    text-align: center;
+    transition: height 0.5s ease-in-out;
+    border-radius: 25px;
+}
+
+.play-list-btn {
+    height: 40px;
+    width: 40px;
+    position: relative;
+    top: 0;
+    left: 115px;
+    background: url(./assets/icons8-list-100.png);
+    background-position: center;
+    background-size: cover;
+    border: 0;
+}
+.file-input-btn {
+    height: 40px;
+    width: 40px;
+    position: relative;
+    top: 0;
+    right: 115px;
+    background: url(./assets/icons8-add-file-100.png);
+    background-position: center;
+    background-size: cover;
+    border: 0;
+}
+
+.album-art-container{
+    position: relative;
+    width: 250px;
+    height: 250px;
+    margin: 0 auto 20px;
+}
+
+.album-art {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 50%;
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 1;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+}
+
+.circular-container {    
+    position: relative;
+    top: 5px;
+    left: 5px;
+    width: 280px;
+    height: 280px;
+}
+
+.circular-progress {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    box-sizing: border-box;
+    mask: radial-gradient(circle, transparent 68%, black 69%);
+    z-index: 0;
+    margin: -20px;
+    background: #009c37;
+}
+
+.circular-progress.anim {
+    animation: scaleanim 3s infinite;
+}
+
+@keyframes scaleanim {
+    0% {scale: 1;}
+    50%{scale: 1.03;}
+    100%{scale: 1;}
+}
+
+.progress-text {
+    margin-top: 30px;
+}
+
+.track-info {
+    margin: 25px 0 20px 0;
+}
+  
+.track-title {
+    font-size: 2rem;
+    color: #ffffff;
+    font-weight: bold;
+    font-family: alumni;
+}
+  
+.track-artist {
+    font-size: 1rem;
+    color: #ffffff;
+    margin-top: 5px;
+    font-family: delhd;
+}
+  
+.nav {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding-bottom: 20px;
+}
+
+#prevButton {
+    height: 30px;
+    width: 30px;
+    background: url(./assets/icons8-prev-100.png);
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: cover;
+    border: none;
+    cursor: pointer;
+    margin-right: 50px;
+}
+
+#nextButton {
+    height: 30px;
+    width: 30px;
+    background: url(./assets/icons8-forward-100.png);
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: cover;
+    border: none;
+    cursor: pointer;
+    margin-left: 50px;
+}
+
+#playPauseButton {
+    width: 45px;
+    height: 45px;
+    background-size: 40px;
+    background: url('assets/icons8-play-100.png');
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: cover;
+    border: none;
+    cursor: pointer;
+}
+
+#playPauseButton.pause {
+    background-image: url('assets/icons8-pause-100.png');
+  }
+
+button {
+    transition: scale 1s ease-in-out;
+    cursor: pointer;
+}
+
+button:hover {
+    scale: 1.1;
+}
+
+.playlist-holder {
+    position: fixed;
+    background: transparent;
+    backdrop-filter: blur(15px);
+    border-radius: 25px;
+    text-align: center;
+    z-index: -1;
+    padding: 30px 20px 20px 20px;
+    text-align: center;
+    opacity: 0;
+    transition: backdrop-filter 0.4s ease-in , opacity 0.3s ease-in-out , height 0.5s ease-in-out;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+}
+
+.playlist-header {
+    position: relative;
+    top: -10px;
+    width: 100%;
+    background: #2e2e2e;
+    border-radius: 25px;
+    display: flex;
+    justify-content: space-between;
+}
+
+.playlist-title {
+    height: 40px;
+    font-size: 1.5rem;
+    font-family: poppins;
+    color: #ffffff;
+    margin-bottom: 20px;
+    display: inline;
+    position: relative;
+    top: 10px;
+    left: 20px;
+}
+
+.playlist-container {
+    background-color: #3333336b;
+    padding: 10px;
+    border-radius: 15px;
+    color: white;
+    height: 90%;
+    overflow-y: auto;
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.5);
+  }
+  
+  .playlist-container::-webkit-scrollbar {
+    display: none;
+  }
+  
+  .playlist-item {
+    padding: 12px 18px;
+    cursor: pointer;
+    font-size: 1.1rem;
+    border-radius: 5px;
+    transition: background-color 0.2s;
+    margin-bottom: 10px;
+  }
+  
+  .playlist-item:hover {
+    background-color: #3333336b;
+    transition: all 0.5s;
+  }
+  
+  .active-track {
+    background-color: #009c37;
+    color: white;
+  }
+  
+  .active-track:hover {
+    background-color: #00d64b;
+    color: rgb(70, 70, 70);
+    transition: all 0.5s;
+  }
+
+.close-playlist-btn {
+    display: inline;
+    height: 40px;
+    width: 40px;
+    position: relative;
+    top: 10px;
+    right: 15px;
+    background: url(./assets/icons8-close-100.png);
+    background-position: center;
+    background-size: cover;
+    border: 0;
+}
+
+
+
+
+.version {
+    position: absolute;
+    bottom: 15px;
+    right: 15px;
+    font-family: alumni;
+    color: #ffffff;
+}
