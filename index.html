@@ -53,7 +53,46 @@
             <div class="playlist-item">No Tracks</div>
         </div>
 
-    </div>    
+    </div>
+
+    <button class="settings-button" id="showSettings"></button>
+
+    <div class="settings-panel" id="settingsPane">
+
+        <div class="settings-header">
+            <button class="close-settings-btn" id="closeSettings"></button>
+            <div class="settings-title">Settings</div>
+        </div>
+
+        <div class="settings-container">
+            <div class="setting-item">
+                <div class="setting-label">Volume</div>
+                <label class="slider">
+                    <input type="range" class="setting-slider level" id="volumeSlider" min="0" max="100" value="100">
+                </label>                
+                <p class="setting-info" id="volumeInfo">~ 100</p>
+            </div>
+            <div class="setting-item">
+                <div class="setting-label">Playback Rate</div>
+                <label class="slider">
+                    <input type="range" class="setting-slider level" id="playbackRateSlider" min="0.5" max="2" step="0.1" value="1">
+                </label>
+                <p class="setting-info" id="rateInfo">~ 1x</p>
+                <button class="setting-button" id="reset">Reset</button>
+            </div>
+            <div class="setting-item">
+                <div class="setting-label">Sleep-timer</div>
+                <label class="slider">
+                    <input type="range" class="setting-slider level" id="sleepTimerSlider" min="0" max="120" step="1" value="0">
+                </label>
+                <p class="setting-info" id="timerInfo">~ 0 min</p>
+                <p class="countdown" id="countdown"></p>
+                <button class="setting-button" id="setTimer">Set</button>
+                <button class="setting-button" id="clearTimer">Clear</button>
+            </div>
+        </div>
+
+    </div>
 
     <p class="version"> V.0125.1</p>
     <script src="./script.js"></script>

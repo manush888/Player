@@ -22,11 +22,11 @@ navigator.mediaSession.setActionHandler('nexttrack', next);
 
 
 hammer.on("swiperight", function () {
-    next();
+    prev();
 });
 
 hammer.on("swipeleft", function () {
-    prev();
+    next();
 });
 
 
@@ -57,7 +57,7 @@ function loadTrack(index) {
 
         jsmediatags.read(file, {
             onSuccess: (tag) => {
-                const { title, artist, picture } = tag.tags;
+                const { title, artist, picture, album } = tag.tags;
                 trackTitle.textContent = title || file.name;
                 trackArtist.textContent = artist || 'Unknown Artist';
 
@@ -66,18 +66,6 @@ function loadTrack(index) {
                     : './assets/nocover.png';
           
                 albumArt.src = base64String;
-
-                // Update Media Session API
-                if ('mediaSession' in navigator) {
-                    navigator.mediaSession.metadata = new MediaMetadata({
-                        title: title || file.name,
-                        artist: artist || 'Unknown Artist',
-                        album: 'Unknown Album',
-                        artwork: [
-                            { src: base64String, sizes: '512x512', type: picture ? picture.format : 'image/png' }
-                        ]
-                    });
-                }
 
                 // Apply background gradient from album art
                 if (picture) {
@@ -94,9 +82,24 @@ function loadTrack(index) {
                         const rgbColor3 = `rgb(${color3[0]}, ${color3[1]}, ${color3[2]})`;
                         playerContainer.style.background = `linear-gradient(135deg, ${rgbColor1}, ${rgbColor3}, ${rgbColor2})`;
                     };
+                } 
+                
+                
+                // Update Media Session API
+                if ('mediaSession' in navigator) {
+                    navigator.mediaSession.metadata = new MediaMetadata({
+                        title: title || file.name,
+                        artist: artist || 'Unknown Artist',
+                        album: album || 'Unknown Album',
+                        artwork: [
+                            { src: base64String, sizes: '512x512', type: picture ? picture.format : 'image/png' }
+                        ]
+                    });
                 } else {
                     playerContainer.style.background = '#1e1e2f';
                 }
+
+                
             },
             onError: () => {
                 trackTitle.textContent = file.name;
@@ -313,4 +316,112 @@ function playlistVisible() {
         }, 300);
     }
 
+}
+
+const settingsPane = document.getElementById('settingsPane');
+const closeSettingsBtn = document.getElementById('closeSettings');
+const showSettingsBtn = document.getElementById('showSettings');
+const volumeSlider = document.getElementById('volumeSlider');
+const playbackRateSlider = document.getElementById('playbackRateSlider');
+const loopCheckbox = document.getElementById('loopCheckbox');
+const sleepTimerSlider = document.getElementById('sleepTimerSlider');
+const resetBtn = document.getElementById('reset');
+const timerInfo = document.getElementById('timerInfo')
+const rateInfo = document.getElementById('rateInfo')
+const volumeInfo = document.getElementById('volumeInfo')
+const setTimer = document.getElementById('setTimer')
+const clearTimer = document.getElementById('clearTimer')
+
+// Close settings panel
+closeSettingsBtn.addEventListener('click', () => {
+    settingsPane.style.left = '-350px';
+});
+
+showSettingsBtn.addEventListener('click', () => {
+    settingsPane.style.left = '0px';
+});
+
+// Adjust volume
+volumeSlider.addEventListener('input', (e) => {
+    const audioVolume = e.target.value;
+    audio.volume = audioVolume / 100;
+    volumeInfo.textContent = `~ ${audioVolume}`
+});
+
+// Adjust playback rate
+playbackRateSlider.addEventListener('input', (e) => {
+    const playRate = e.target.value;
+    audio.playbackRate = playRate;
+    rateInfo.textContent = '~ '+ playRate + 'x';
+});
+
+// Reset playback rate
+resetBtn.addEventListener('click', () => {
+    playbackRateSlider.value = 1;
+    audio.playbackRate = 1;
+    rateInfo.textContent = '~ 1x';
+});
+
+// Sleep timer logic
+sleepTimerSlider.addEventListener('input', (e) => {
+    const time = e.target.value;
+    clearTimeout(audio.sleepTimer);
+    timerInfo.textContent = `~ ${time} min`
+});
+
+const countdown = document.getElementById('countdown');
+let countdownInterval; // Declare at the top
+
+
+setTimer.addEventListener('click', () => {
+    const time = sleepTimerSlider.value;
+    clearTimeout(audio.sleepTimer);
+    clearInterval(countdownInterval); // Clear any existing countdown
+    
+    if (trackList.length > 0) {        
+        if (time > 0) {
+            countdownTime(time); // Start countdown display
+
+            
+            if (isPlaying) {
+            } else {
+                playAudio();
+            }
+
+            audio.sleepTimer = setTimeout(() => {
+                pauseAudio();
+                timerInfo.textContent = `~ 0min`;
+                clearInterval(countdownInterval);
+                countdown.textContent = 'Time’s up!';
+            }, time * 60000); // Convert to milliseconds
+        } else {        
+            countdown.textContent = 'Timer Off';
+        }
+    } else {
+        countdown.textContent = 'Add files to play'
+    }
+
+});
+
+clearTimer.addEventListener('click', () => {
+    clearTimeout(audio.sleepTimer);
+    clearInterval(countdownInterval);
+    sleepTimerSlider.value = 0;
+    countdown.textContent = 'Timer Cleared';
+});
+
+function countdownTime(time) {
+    let remainingTime = time * 60; // Convert to seconds
+    
+    countdownInterval = setInterval(() => {
+        const minutes = Math.floor(remainingTime / 60);
+        const seconds = remainingTime % 60;
+        countdown.textContent = `${minutes}m ${seconds}s`;
+
+        if (remainingTime <= 0) {
+            clearInterval(countdownInterval);
+            countdown.textContent = 'Time’s up!';
+        }
+        remainingTime--;
+    }, 1000); 
 }
